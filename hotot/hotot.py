@@ -13,6 +13,8 @@ import agent
 import utils
 import dbus
 import dbus.service
+import re
+import sys
 import threading
 import time
 from dbus.mainloop.glib import DBusGMainLoop
@@ -375,14 +377,25 @@ def main():
     global HAS_INDICATOR
     gtk.gdk.threads_init()
     config.loads();
-    try:
-        import ctypes
-        libc = ctypes.CDLL('libc.so.6')
-        libc.prctl(15, 'hotot', 0, 0, 0)
-    except:
-        import dl
-        libc = dl.open('/lib/libc.so.6')
-        libc.call('prctl', 15, 'hotot', 0, 0, 0)
+
+    if re.match('((free|net|open)bsd\d*|bsdos\d*)', sys.platform):
+        try:
+            import ctypes
+            libc = ctypes.CDLL('libc.so')
+            libc.setproctitle('hotot')
+        except:
+            import dl
+            libc = dl.open('/lib/libc.so')
+            libc.call('setproctitle', 'hotot')
+    else:
+        try:
+            import ctypes
+            libc = ctypes.CDLL('libc.so.6')
+            libc.prctl(15, 'hotot', 0, 0, 0)
+        except:
+            import dl
+            libc = dl.open('/lib/libc.so.6')
+            libc.call('prctl', 15, 'hotot', 0, 0, 0)
 
     agent.init_notify()
     app = Hotot()
