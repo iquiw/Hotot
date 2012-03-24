@@ -58,7 +58,11 @@ function(hotot_set_qt4_target tgt)
   set_target_properties("${tgt}"
     PROPERTIES LINKER_LANGUAGE CXX
     INCLUDE_DIRECTORIES "${HOTOT_QT4_INCLUDE_DIRS}")
-  target_link_libraries("${tgt}" ${HOTOT_QT_LINKS})
+  if(${CMAKE_SYSTEM_NAME} STREQUAL "NetBSD")
+    target_link_libraries("${tgt}" ${HOTOT_QT_LINKS} intl)
+  else()
+    target_link_libraries("${tgt}" ${HOTOT_QT_LINKS})
+  endif(${CMAKE_SYSTEM_NAME} STREQUAL "NetBSD")
 endfunction()
 
 function(hotot_set_kde4_target tgt)
